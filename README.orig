@@ -1,0 +1,10 @@
+Netdict is a plugin for the VIM editor to get word and other definitions from
+the Internet via the `dict' command line client.
+
+Type `make install' to install then fire up vim and run `:helptags ~/.vim/doc'
+then `:h netdict' to view the manual.
+
+Note that this plugin has only been tested with VIM 6.1 and that there aren't
+any warrenties or guarantees.
+
+bjk <bjk@arbornet.org>

@@ -1,0 +1,226 @@
+*netdict.txt*  Retrieve term definitions from the Internet.
+
+				N E T D I C T
+
+1. Introduction			|intro|
+2. Settings			|settings|
+3. Mappings			|mappings|
+4. Commands			|commands|
+5. TODO				|todo|
+6. Changes			|changes|
+7. Copyright			|copyright|
+
+==============================================================================
+1. Introduction						*intro*
+
+Netdict is a plugin to retrieve word and other definitions from the Internet
+using the Unix DICT protocol client.
+
+==============================================================================
+2. Settings						*settings*
+
+The following global variables are available and may be specified in your
+configuration file via the |:let| command.
+
+						*netdict_dictprg*
+Specifies the command to execute dict. The default is 'dict'.
+
+						*netdict_xargs*
+Specifies any extra options to pass to |netdict_dictprg|. See the dict(1)
+manual page for available options. The default is empty.
+
+						*netdict_database*
+The default database to search when looking up terms. If empty, the default,
+search all available databases.
+
+						*netdict_strategy*
+The default strategy to use when searching a database. If empty, the default,
+use the servers default strategy which is normally 'exact'. 
+
+						*netdict_expand*
+When selecting terms with any of the cursor lookup or match plugins and this
+option is set to 1, then all words enclosed in '"' or '{}' are used as the
+term in all windows and not just the definition window. Otherwise only the
+word under the cursor (see |<cword>|) is used as the term.
+
+						*netdict_extra_history*
+Setting this to zero disables adding words selected with any of the cursor
+lookup or match plugins and |commands| to the input history. The default is 1
+or enabled.
+
+==============================================================================
+3. Mappings						*mappings*
+
+The following are the default key mappings. You can easily change them by
+specifying the |{rhs}| of the |:map| command as one of the plugin names in
+your configuration file.
+
+						*<Leader>ll*
+						*<Plug>NetdictLookup*
+Prompt for input of a term in normal mode. If a term contains spaces or
+special characters it must be enclosed in double quotes to prevent the shell
+from interpreting them. You can select an alternate database and search
+strategy for the term by separating them with spaces. The format for input is:
+
+    term [!|*|database [ strategy ]]
+
+A database named '!' returns results from the first matching database only. A
+database named '*' searches all available databases and is usally specified
+when using an alternate search strategy. Otherwise the named database is one
+available from the server. See |<Plug>NetdictShowDB|.
+
+						*<Leader>lm*
+						*<Plug>NetdictMatch*
+Display a list of possible matches for the specified term rather than
+definitions.
+
+						*<Leader>ld*
+						*<Plug>NetdictShowDB*
+Show a list of searchable databases from the server.
+
+						*<Leader>ls*
+						*<Plug>NetdictShowStrat*
+Show a list of search strategies from the server.
+
+						*<Esc>1*
+						*<Plug>NetdictCursorLookup*
+Lookup the definition of the word under the cursor (see |netdict_expand|) in
+normal mode without prompting for input. If the word is a hyperlink (enclosed
+in {}) or a term of possible matches from the definition window, then only
+definitions for the term in the associated database will be shown.
+
+						*<Esc>2*
+						*<Plug>NetdictAllCursorLookup*
+Like |<Plug>NetdictCursorLookup| but display definitions from all databases.
+
+						*<Esc>3*
+						*<Plug>NetdictCursorMatch*
+Lookup possible matches for the word under the cursor (see |netdict_expand|)
+in normal mode without prompting for input. 
+
+						*<Esc>4*
+						*<Plug>NetdictAllCursorMatch*
+Like |<Plug>NetdictCursorMatch| but display matches from all databases.
+
+						*<C-T>*
+Goto to the previous definition when in the definition window.
+
+						*]]* *[[*
+Jump to the next or previous [count] definition or match when in the
+definition window. When jumping between definitions Netdict will try and
+position the match at the top of the window. If this doesn't work then it is
+probably do to |'scrolloff'| being greater than zero.
+
+						*}}* *{{*
+Jump to the next or previous [count] hyperlink when in the definition window.
+
+==============================================================================
+4. Commands						*commands*
+
+						*:Lookup*
+Like |<Plug>NetdictLookup| but without a prompt. If no arguments are given
+then a prompt is displayed just as if |<Plug>NetdictLookup| were used.
+
+Example:
+    :Lookup "^somet" web1913 re
+
+would return all words from the Webster's dictionary beginning with 'somet'.
+
+						*:Match*
+Like |:Lookup| but behaves like |<Plug>NetdictMatch|.
+
+==============================================================================
+5. TODO							*todo*
+
+Below are some things I'd like to see in future versions. If you have any
+other suggestions feel free to let me know or send me some patches.
+
+   * multiword terms in (character) visual mode 'v'
+   * support multiword terms that span more than one line
+   * gui mouse support and syntax highlighting (I dont have a gui yet)
+
+==============================================================================
+6. Changes						*changes*
+
+20030823
+    * see the plugin and syntax files for their changes.
+
+20020511
+    * [count] bugfix
+
+20020510
+    * NetdictCmd() replaces MatchCmd() and LookupCmd()
+    * avoid 'hit enter' more often
+    * removed visual <Plug>Netdict*Cursor* mappings (useless right now)
+    * syntax highlighting updates
+    * changed '}}' and '{{' when displaying matches to ']]' and '[[' (easier)
+    * when showing matches move the cursor to the first match
+
+20020508
+    * }} and {{ jump to the next or previous match when showing matches
+    * menu items are under Plugins.Netdict
+    * [count] works with definition/hyperlink/match jumps (buggy)
+    * <C-\> is now <Esc>1 and <Tab> is now <Esc>3
+    * added mapping <Esc>2 (<Plug>NetdictAllCursorLookup) to show all
+      definitions for a hyperlink or match
+    * added mapping <Esc>4 (<Plug>NetdictAllCursorMatch) to show matches from
+      all databases when selecting a match
+    * added commands and jumps to input history (see netdict_extra_history)
+    * more syntax highlighting
+    * <Leader>ld and <Leader>ls are now <Plug>NetdictShowDB and
+      <Plug>NetdictShowStrat plugins
+
+20020506
+    * made <C-/> and <Tab> as <Plug>NetdictCursorLookup and 
+      <Plug>NetdictCursorMatch plugins
+    * added mappings }} and {{ to goto the next and previous hyperlink in the
+      definition window
+    * use winline() in Search()
+    * use getwinvar() rather than getbufvar() (fixes textwidth bug)
+    * multiword terms work when enclosed in " or {} (still cant select more
+      than one word in visual mode though)
+    * added configuration option netdict_expand
+    * more syntax highlighting
+
+20020502 (#2)
+    * needs the bash shell installed. will change the `shell' variable
+      automatically before calling system() then restore the old setting
+      afterwards. this is needed for file descriptor stuff.
+    
+20020502
+    * plugin names are NetdictLookup and NetdictMatch
+    * added commands :Lookup and :Match
+    * <C-/> now works in visual mode (still only one word though)
+    * added map <Tab> to lookup matches for the word under the cursor
+    * v:shell_error now holds the return value of dict and not tee
+    * tell what invalid database or strategy
+    * added Match Term to the plugin menu
+    * when jumping between matches using [[ or ]] try to position the match at
+      the top of the window
+
+20020430
+    * change netdict_dictargs to netdict_xargs
+    * can search different databases using different strategies
+    * changed mapping <Leader>l to <Leader>ll
+    * added mappings <Leader>lm, <Leader>ld and <Leader>ls
+    * default database is defined by netdict_database
+    * default search strategy is defined by netdict_strategy
+    * LookupWord() renamed to LookupTerm()
+    * miscellaneous cleanups
+
+20020426
+    * tags work now (heavily ripped from man.vim)
+    * output looks a little better
+    * local mappings ]] and [[ to goto the next and previous definitions
+      in the current window
+
+==============================================================================
+7. Copyright						*copyright*
+
+Netdict is written by bjk <bjk@arbornet.org> and is distributed under the
+terms of the GNU General Public License version 2 or later.
+
+The latest version can be found either at http://arbornet.org/~bjk/vim/ or on
+VIM Online http://vim.sf.net/.
+
+ vim:tw=78:ts=8:

@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=280
+
+Netdict is a plugin to lookup definitions via the Internet with a dict command-line client. It has the following features:
+
+    - specifying an alternate database and search strategy
+    - term matching
+    - syntax highlighting
+    - customizable settings
+    - GUI when available
