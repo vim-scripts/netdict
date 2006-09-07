@@ -4,7 +4,6 @@ the Internet via the `dict' command line client.
 Type `make install' to install then fire up vim and run `:helptags ~/.vim/doc'
 then `:h netdict' to view the manual.
 
-Note that this plugin has only been tested with VIM 6.1 and that there aren't
-any warrenties or guarantees.
+Tested to work with VIM 6 and 7.
 
-bjk <bjk@arbornet.org>
+Ben Kibbey <bjk@luxsci.net>

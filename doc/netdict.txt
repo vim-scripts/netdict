@@ -7,8 +7,7 @@
 3. Mappings			|mappings|
 4. Commands			|commands|
 5. TODO				|todo|
-6. Changes			|changes|
-7. Copyright			|copyright|
+6. Copyright			|copyright|
 
 ==============================================================================
 1. Introduction						*intro*
@@ -23,7 +22,7 @@ The following global variables are available and may be specified in your
 configuration file via the |:let| command.
 
 						*netdict_dictprg*
-Specifies the command to execute dict. The default is 'dict'.
+Specifies the command to execute dict. The default is 'dict --pager -'.
 
 						*netdict_xargs*
 Specifies any extra options to pass to |netdict_dictprg|. See the dict(1)
@@ -69,6 +68,10 @@ database named '*' searches all available databases and is usally specified
 when using an alternate search strategy. Otherwise the named database is one
 available from the server. See |<Plug>NetdictShowDB|.
 
+If you are running a version of VIM which was compiled with |+dialog_gui| then
+a new window will be created prompting you for the search term which has the
+same format as above.
+
 						*<Leader>lm*
 						*<Plug>NetdictMatch*
 Display a list of possible matches for the specified term rather than
@@ -82,25 +85,17 @@ Show a list of searchable databases from the server.
 						*<Plug>NetdictShowStrat*
 Show a list of search strategies from the server.
 
-						*<Esc>1*
+						*<Leader>lcl*
 						*<Plug>NetdictCursorLookup*
 Lookup the definition of the word under the cursor (see |netdict_expand|) in
 normal mode without prompting for input. If the word is a hyperlink (enclosed
 in {}) or a term of possible matches from the definition window, then only
 definitions for the term in the associated database will be shown.
 
-						*<Esc>2*
-						*<Plug>NetdictAllCursorLookup*
-Like |<Plug>NetdictCursorLookup| but display definitions from all databases.
-
-						*<Esc>3*
+						*<Leader>lcm*
 						*<Plug>NetdictCursorMatch*
 Lookup possible matches for the word under the cursor (see |netdict_expand|)
 in normal mode without prompting for input. 
-
-						*<Esc>4*
-						*<Plug>NetdictAllCursorMatch*
-Like |<Plug>NetdictCursorMatch| but display matches from all databases.
 
 						*<C-T>*
 Goto to the previous definition when in the definition window.
@@ -140,87 +135,12 @@ other suggestions feel free to let me know or send me some patches.
    * gui mouse support and syntax highlighting (I dont have a gui yet)
 
 ==============================================================================
-6. Changes						*changes*
+6. Copyright						*copyright*
 
-20030823
-    * see the plugin and syntax files for their changes.
+Netdict is written by Ben Kibbey <bjk@luxsci.net> and is distributed under the
+terms of the GNU General Public License.
 
-20020511
-    * [count] bugfix
-
-20020510
-    * NetdictCmd() replaces MatchCmd() and LookupCmd()
-    * avoid 'hit enter' more often
-    * removed visual <Plug>Netdict*Cursor* mappings (useless right now)
-    * syntax highlighting updates
-    * changed '}}' and '{{' when displaying matches to ']]' and '[[' (easier)
-    * when showing matches move the cursor to the first match
-
-20020508
-    * }} and {{ jump to the next or previous match when showing matches
-    * menu items are under Plugins.Netdict
-    * [count] works with definition/hyperlink/match jumps (buggy)
-    * <C-\> is now <Esc>1 and <Tab> is now <Esc>3
-    * added mapping <Esc>2 (<Plug>NetdictAllCursorLookup) to show all
-      definitions for a hyperlink or match
-    * added mapping <Esc>4 (<Plug>NetdictAllCursorMatch) to show matches from
-      all databases when selecting a match
-    * added commands and jumps to input history (see netdict_extra_history)
-    * more syntax highlighting
-    * <Leader>ld and <Leader>ls are now <Plug>NetdictShowDB and
-      <Plug>NetdictShowStrat plugins
-
-20020506
-    * made <C-/> and <Tab> as <Plug>NetdictCursorLookup and 
-      <Plug>NetdictCursorMatch plugins
-    * added mappings }} and {{ to goto the next and previous hyperlink in the
-      definition window
-    * use winline() in Search()
-    * use getwinvar() rather than getbufvar() (fixes textwidth bug)
-    * multiword terms work when enclosed in " or {} (still cant select more
-      than one word in visual mode though)
-    * added configuration option netdict_expand
-    * more syntax highlighting
-
-20020502 (#2)
-    * needs the bash shell installed. will change the `shell' variable
-      automatically before calling system() then restore the old setting
-      afterwards. this is needed for file descriptor stuff.
-    
-20020502
-    * plugin names are NetdictLookup and NetdictMatch
-    * added commands :Lookup and :Match
-    * <C-/> now works in visual mode (still only one word though)
-    * added map <Tab> to lookup matches for the word under the cursor
-    * v:shell_error now holds the return value of dict and not tee
-    * tell what invalid database or strategy
-    * added Match Term to the plugin menu
-    * when jumping between matches using [[ or ]] try to position the match at
-      the top of the window
-
-20020430
-    * change netdict_dictargs to netdict_xargs
-    * can search different databases using different strategies
-    * changed mapping <Leader>l to <Leader>ll
-    * added mappings <Leader>lm, <Leader>ld and <Leader>ls
-    * default database is defined by netdict_database
-    * default search strategy is defined by netdict_strategy
-    * LookupWord() renamed to LookupTerm()
-    * miscellaneous cleanups
-
-20020426
-    * tags work now (heavily ripped from man.vim)
-    * output looks a little better
-    * local mappings ]] and [[ to goto the next and previous definitions
-      in the current window
-
-==============================================================================
-7. Copyright						*copyright*
-
-Netdict is written by bjk <bjk@arbornet.org> and is distributed under the
-terms of the GNU General Public License version 2 or later.
-
-The latest version can be found either at http://arbornet.org/~bjk/vim/ or on
-VIM Online http://vim.sf.net/.
+The latest version can be found either at http://arbornet.org/~bjk/vim/ or at
+VIM Online http://www.vim.org/.
 
  vim:tw=78:ts=8:

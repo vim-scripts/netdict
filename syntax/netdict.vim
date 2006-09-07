@@ -1,11 +1,6 @@
 " Vim syntax file
 " Language:	Netdict plugin
-" Maintainer:	bjk <bjk@arbornet.org>
-"
-" $Log: netdict.vim,v $
-" Revision 1.2  2003/08/23 19:26:17  bjk
-" Fix the database expression to include '-' in the name.
-"
+" Maintainer:	Ben Kibbey <bjk@luxsci.net>
 
 " For version 6.x: Quit when a syntax file was already loaded
 if version < 600
@@ -19,13 +14,13 @@ syn case ignore
 syn keyword netdictRef syn ant
 syn match netdictFOLDOC /\s\+<\([a-z ,]\+\)>\s/
 syn match netdictSeparator /^[=]\+$/
-syn match netdictDBName /\[\w\+\]/hs=s+1,he=e-1 contained
-syn match netdictDatabase /^\w.* \(.*\) \[.*\]:\s*/ contains=netdictDBName
+syn match netdictDBName /\[\p\+\]/hs=s+1,he=e-1 contained
+syn match netdictDatabase /^\p.*\[.*\]:\s*/ contains=netdictDBName
 syn match netdictDefinitionN /[.]*\d\+[:.]/he=e-1
-syn match netdictMatchN /[.]*\[\d\+\]/ contained
-syn match netdictSeparator /^[=]\+\[\d\+\][=]$/ contains=netdictMatchN
+syn match netdictMatchN /[.]*\[\d\+ of \d\+\]/ contained
+syn match netdictSeparator /^[=]\+\[\d\+ of \d\+\][=]$/ contains=netdictMatchN
 syn match netdictTermUsage /\s\+(\l) /
-syn match netdictMatchDB /^[0-9A-Za-z_-]\+:  /he=e-3
+syn match netdictMatchDB /^\p\+:  /he=e-3
 syn match netdictHyperLink /{[^}]*}/
 syn region netdictType start=/\[/ end=/\]/ contains=netdictHyperLink,netdictRef
 
@@ -37,13 +32,13 @@ if version >= 508 || !exists("did_c_syn_inits")
 	command -nargs=+ HiLink hi def link <args>
     endif
 
-    hi nSeparator	term=bold cterm=bold ctermfg=5
-    hi nDBTitle		term=bold cterm=NONE ctermfg=7 ctermbg=4
-    hi nDBName		term=bold cterm=bold ctermfg=3 ctermbg=4
-    hi nMatchDBName	term=bold cterm=NONE ctermfg=3
-    hi nHyperLink	term=bold cterm=standout ctermfg=6
-    hi nDefinitionN	term=reverse cterm=reverse ctermfg=2
-    hi nMatchN		term=reverse cterm=NONE ctermfg=1
+    hi nSeparator	term=bold cterm=bold ctermfg=5 guifg=DarkGray
+    hi nDBTitle		term=bold cterm=NONE ctermfg=7 ctermbg=4 guifg=Darkred
+    hi nDBName		term=bold cterm=bold ctermfg=3 ctermbg=4 guifg=Orange
+    hi nMatchDBName	term=bold cterm=NONE ctermfg=3 guifg=Orange
+    hi nHyperLink	term=bold cterm=standout ctermfg=6 guifg=DarkBlue
+    hi nDefinitionN	term=reverse cterm=reverse ctermfg=2 guifg=darkgreen
+    hi nMatchN		term=reverse cterm=NONE ctermfg=1 guifg=darkgreen
     hi nFOLDOC		term=NONE cterm=NONE ctermfg=5
     hi nReference	term=underline cterm=NONE ctermfg=5
     hi nType		term=underline cterm=NONE ctermfg=3

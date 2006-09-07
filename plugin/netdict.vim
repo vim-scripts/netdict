@@ -1,11 +1,7 @@
-" Vim plugin to look up a definition of a term using `dict'.
-" Maintainer: bjk <bjk@arbornet.org>
-" Last Change: May 11, 2002
-"
-" $Log: netdict.vim,v $
-" Revision 1.2  2003/08/23 19:26:16  bjk
-" Fix the database expression to include '-' in the name.
-"
+" Vim plugin to look up term definitions using `dict'.
+" Maintainer: Ben Kibbey <bjk@luxsci.net>
+" Last Change: Aug 05, 2006
+" Requirements: VIM 6/7 and a dict protocol client.
 
 if exists("loaded_netdict")
     finish
@@ -14,7 +10,7 @@ endif
 let loaded_netdict = 1
 
 if !exists("g:netdict_dictprg")
-    let g:netdict_dictprg = "dict"
+    let g:netdict_dictprg = "dict --pager -"
 endif
 
 if !exists("g:netdict_strategy")
@@ -42,8 +38,6 @@ noremap <unique> <script> <Plug>NetdictLookup <SID>NetdictLookup
 noremap <unique> <script> <Plug>NetdictMatch <SID>NetdictMatch
 noremap <unique> <script> <Plug>NetdictCursorLookup <SID>NetdictCursorLookup
 noremap <unique> <script> <Plug>NetdictCursorMatch <SID>NetdictCursorMatch
-noremap <unique> <script> <Plug>NetdictAllCursorLookup <SID>NetdictAllCursorLookup
-noremap <unique> <script> <Plug>NetdictAllCursorMatch <SID>NetdictAllCursorMatch
 noremap <unique> <script> <Plug>NetdictShowDB <SID>NetdictShowDB
 noremap <unique> <script> <Plug>NetdictShowStrat <SID>NetdictShowStrat
 
@@ -52,51 +46,39 @@ noremap <SID>NetdictLookup :call <SID>LookupTerm()<CR>
 noremap <SID>NetdictMatch :call <SID>LookupTerm(1)<CR>
 noremap <SID>NetdictCursorLookup :call <SID>GetCursorTerm(0)<CR>
 noremap <SID>NetdictCursorMatch :call <SID>GetCursorTerm(1)<CR>
-noremap <SID>NetdictAllCursorLookup :call <SID>GetCursorTerm(0, 1)<CR>
-noremap <SID>NetdictAllCursorMatch :call <SID>GetCursorTerm(1, 1)<CR>
-noremap <SID>NetdictShowDB :call <SID>RunDict(1, "--dbs")<CR>
-noremap <SID>NetdictShowStrat :call <SID>RunDict(1, "--strats")<CR>
+noremap <SID>NetdictShowStrat :call <SID>FetchStrategies()<CR>
+noremap <SID>NetdictShowDB :call <SID>FetchDatabases()<CR>
 
 noremenu <script> Plugin.&Netdict.-sep- <nul>
-noremenu <script> Plugin.Netdict.&Lookup\ Term <SID>NetdictLookup
-noremenu <script> Plugin.Netdict.L&ookup\ Cursor\ Term <SID>NetdictCursorLookup
-noremenu <script> Plugin.Netdict.Loo&kup\ Cursor\ Term\ \(all\) <SID>NetdictAllCursorLookup
-noremenu <script> Plugin.Netdict.&Match\ Term <SID>NetdictMatch
-noremenu <script> Plugin.Netdict.M&atch\ Cursor\ Term <SID>NetdictCursorMatch
-noremenu <script> Plugin.Netdict.Ma&tch\ Cursor\ Term\ \(all\) <SID>NetdictAllCursorMatch
+noremenu <script> <silent> Plugin.Netdict.&Lookup\ Term <SID>NetdictLookup
+noremenu <script> <silent> Plugin.Netdict.L&ookup\ Cursor\ Term <SID>NetdictCursorLookup
+noremenu <script> <silent> Plugin.Netdict.&Match\ Term <SID>NetdictMatch
+noremenu <script> <silent> Plugin.Netdict.M&atch\ Cursor\ Term <SID>NetdictCursorMatch
 noremenu <script> Plugin.Netdict.Available\ &Databases <SID>NetdictShowDB
 noremenu <script> Plugin.Netdict.Available\ &Strategies <SID>NetdictShowStrat
 
 if !hasmapto('<Plug>NetdictLookup')
-    nmap <unique> <Leader>ll <Plug>NetdictLookup
+    nmap <unique> <silent> <Leader>ll <Plug>NetdictLookup
 endif
 
 if !hasmapto('<Plug>NetdictMatch')
-    nmap <unique> <Leader>lm <Plug>NetdictMatch
+    nmap <unique> <silent> <Leader>lm <Plug>NetdictMatch
 endif
 
 if !hasmapto('<Plug>NetdictCursorLookup')
-    nmap <unique> <Esc>1 <Plug>NetdictCursorLookup
+    nmap <unique> <silent> <Leader>lcl <Plug>NetdictCursorLookup
 endif
 
 if !hasmapto('<Plug>NetdictCursorMatch')
-    nmap <unique> <Esc>3 <Plug>NetdictCursorMatch
-endif
-
-if !hasmapto('<Plug>NetdictAllCursorLookup')
-    nmap <unique> <Esc>2 <Plug>NetdictAllCursorLookup
-endif
-
-if !hasmapto('<Plug>NetdictAllCursorMatch')
-    nmap <unique> <Esc>4 <Plug>NetdictAllCursorMatch
+    nmap <unique> <silent> <Leader>lcm <Plug>NetdictCursorMatch
 endif
 
 if !hasmapto('<Plug>NetdictShowDB')
-    nmap <unique> <Leader>ld <Plug>NetdictShowDB
+    nmap <unique> <silent> <Leader>ld <Plug>NetdictShowDB
 endif
 
 if !hasmapto('<Plug>NetdictShowStrat')
-    nmap <unique> <Leader>ls <Plug>NetdictShowStrat
+    nmap <unique> <silent> <Leader>ls <Plug>NetdictShowStrat
 endif
 
 if exists(":Lookup") != 2
@@ -108,8 +90,9 @@ if exists(":Match") != 2
 endif
 
 let s:netdict_tag_depth = 0
+let s:netdict_last_history = 0
 
-func <SID>GetCursorTerm(match, ...)
+func <SID>GetCursorTerm(match)
     let ft = getwinvar(".", "&filetype")
     let word = expand("<cword>")
 
@@ -149,7 +132,7 @@ func <SID>GetCursorTerm(match, ...)
 	endwhile
     endif
 
-    if match(getline(1), '^[0-9A-Za-z_-]\+:  .*$') != -1
+    if match(getline(1), '^\p\+:  .*$') != -1
 	let matchmode = 1
     endif
 
@@ -174,8 +157,8 @@ func <SID>GetCursorTerm(match, ...)
 	let i = line(".")
 
 	while i > 0
-	    if match(getline(i), '^[0-9A-Za-z_-]\+:  .*$') != -1
-		let db = substitute(getline(i), '^\([0-9A-Za-z_-]\+\):  .*$', 
+	    if match(getline(i), '^\p\+:  .*$') != -1
+		let db = substitute(getline(i), '^\(\p\+\):  .*$', 
 		    \ '\1', '')
 		break
 	    endif
@@ -225,10 +208,35 @@ func <SID>NetdictCmd(match, ...)
     return
 endfunc
 
+func <SID>FetchDatabases()
+    call s:Echo("Fetching databases...")
+    call <SID>RunDict(1, "--dbs")<CR>
+endfunc
+
+func <SID>FetchStrategies()
+    call s:Echo("Fetching strategies...")
+    call <SID>RunDict(1, "--strats")
+endfunc
+
 func s:RunDict(...)
+    let prog = strpart(g:netdict_dictprg, " ", stridx(g:netdict_dictprg, " "))
+
+    if prog == ''
+	let prog = g:netdict_dictprg
+    endif
+
+    if executable(prog) != 1
+	if has("gui_running") && has("dialog_gui")
+	    call confirm("The command \"" . prog . "\" could not be found in your $PATH.")
+	    return ''
+	else
+	    call s:Echo("The command \"" . prog . "\" could not be found in your $PATH.")
+	    return ''
+	endif
+    endif
+
     let s:tmpfile = tempname()
-    let args = "exec 9> >( tee " . s:tmpfile . " ); "
-    let args = args . g:netdict_dictprg . " " . g:netdict_xargs . " "
+    let args = g:netdict_dictprg . " " . g:netdict_xargs . " "
     let i = 2
 
     while exists("a:" . i)
@@ -236,23 +244,14 @@ func s:RunDict(...)
 	let i = i + 1
     endwhile
 
-    let args = args . " >&9;"
-    let oldshell = getwinvar(".", "&shell")
-
-    call setwinvar(".", "&shell", "/bin/bash")
-
+    let args = args . " | tee " . s:tmpfile . ";"
     let result = system(args)
 
     if v:shell_error
-	call s:Echo("Problem while executing \"".g:netdict_dictprg."\"")
-	call system("exec 9>&-;")
-	call setwinvar(".", "&shell", oldshell)
+	call s:Echo("Problem while executing \"" . args . "\"")
 	return
     endif
 
-    call system("exec 9>&-;")
-    call setwinvar(".", "&shell", oldshell)
-    
     if a:1
 	echo result
 	return
@@ -263,14 +262,14 @@ endfunc
 
 func s:ParseTerm(term)
     let word = a:term
-    let word = substitute(word, '\s*$', "", "")
+    let word = substitute(word, '^[ ]*', "", "")
     let pos = strridx(word, '"')
 
     if pos != -1
 	let more = strpart(word, pos + 1)
 	let word = strpart(word, 0, pos + 1)
     else
-	if word =~ '^\w* .*$'
+	if word =~ '^\S* .*$'
 	    let pos = stridx(word, " ")
 	    let more = strpart(word, pos + 1)
 	    let word = strpart(word, 0, pos + 1)
@@ -285,10 +284,13 @@ func s:ParseTerm(term)
 	    let s:db = substitute(strpart(more, 0, pos), '[ ]', '', '')
 	    let s:strat = substitute(strpart(more, pos + 1), '[ ]', '', '')
 	else
-	    let s:db = substitute(more, '[ ]', '', '')
+	    if more != ''
+		let s:db = substitute(more, '[ ]', '', '')
+	    endif
 	endif
     endif
 
+    let word = escape(word, "`{}[]")
     return word
 endfunc
 
@@ -300,12 +302,16 @@ func <SID>LookupTerm(...)
     if a:0 == 0 || a:1 == 1
 	if exists("a:1")
 	    let match = " -m "
-	    let prompt = "Match "
+	    let type = "Match "
 	else
-	    let prompt = "Lookup "
+	    let type = "Lookup "
 	endif
 
-	let word = input(prompt . "(<term> [!|*|db [strategy]]): ")
+	if has("gui_running") && has("dialog_gui")
+	    let word = inputdialog("Enter the term to " . tolower(type) . "in the text field below. If the term contains any spaces it should be enclosed in double quotes.\n\nA database may be specified by following the term with a space then the database name. A database of \"!\" will stop searching after the first match from any database, \"*\" will search all databases.\n\nA strategy may be specified by following the database name with a space then the strategy name.\n\nExample: \"^re.*ination\" gcide re", (s:netdict_last_history ? histget("input", s:netdict_last_history) : ''))
+	else
+	    let word = input(type . "(<term> [!|*|db [strategy]]): ")
+	endif
 
 	if word =~ '^\s*$'
 	    return
@@ -327,21 +333,22 @@ func <SID>LookupTerm(...)
     let word = substitute(word, '[[:space:]]*$', '', '')
 
     if g:netdict_extra_history == 1
-	call histadd("input", word.(s:db != '' ? ' '.s:db : '').
-	    \ (s:strat != '' ? ' '.s:strat : ''))
+	call histadd("input", word.(s:db != '' ? ' '.s:db : ''). (s:strat != '' ? ' '.s:strat : ''))
+
+	let s:netdict_last_history = histnr("input")
     endif
 
-    call s:Echo("Looking up '".word."'".(s:db != '' ? " in ".s:db : '').' ...')
+    call s:Echo("Looking up " . (word[0] == '"' ? "" : '"') . word . (word[0] == '"' ? "" : '"') . (s:db != '' ? " in ".s:db : '') . ' ...')
 
     if s:db != ''
-	let s:db = " --database " . escape(s:db, '!*-')
+	let s:db = " --database " . escape(s:db, "'!#*$")
     endif
 
     if s:strat != ''
 	let s:strat = " --strategy " . s:strat
     endif
 
-    let def = <SID>RunDict(0, s:db, s:strat." ", match, word)
+    let def = <SID>RunDict(0, s:db, s:strat." ", match, escape(word, "'!#$"))
 
     if def == ''
 	return
@@ -364,6 +371,11 @@ func <SID>LookupTerm(...)
     endif
 
     let results = <SID>Dumpdef(word, s:tmpfile)
+
+    if match(results, '^[0] ') != -1
+	call s:Echo("")
+	return
+    endif
 
     call s:Echo(substitute(results, '\%["]"\([^"]*\)"\%["]', '"\1"', 'g'))
     return
@@ -415,23 +427,23 @@ func s:Dumpdef(word, tmpfile)
 
     nnoremap <buffer> <C-t> :call <SID>PopDef()<CR>
 
-    if match(getline(1), '^\w\+:  .*$') != -1
-	nnoremap <buffer> ]] :<C-U>call 
-	    \ <SID>Search('\(\w\+[-:"]\)\@!\w\+', 0, 1)<CR>
-	nnoremap <buffer> [[ :<C-U>call 
-	    \ <SID>Search('\(\w\+[-:"]\)\@!\w\+', 1, 1)<CR>
+    if match(getline(1), '^\p\+:  .*$') != -1
+	nnoremap <buffer> <silent> ]] :<C-U>call 
+	    \ <SID>Search('\(\p\+[-:"]\)\@!\w\+', 0, 1)<CR>
+	nnoremap <buffer> <silent> [[ :<C-U>call 
+	    \ <SID>Search('\(\p\+[-:"]\)\@!\w\+', 1, 1)<CR>
 	1
 	sil exec 'norm ]]'
     else
-	nnoremap <buffer> ]] :call <SID>Search('^[=]\+\n^\u.*:\s*$', 0)<CR>
-	nnoremap <buffer> [[ :call <SID>Search('^[=]\+\n^\u.*:\s*$', 1)<CR>
-	nnoremap <buffer> }} :call <SID>Search('{[^}]\+}', 0, 1)<CR>
-	nnoremap <buffer> {{ :call <SID>Search('{[^}]\+}', 1, 1)<CR>
+	nnoremap <buffer> <silent> ]] :call <SID>Search('^[=]\+\n^\p.*:\s*$', 0)<CR>
+	nnoremap <buffer> <silent> [[ :call <SID>Search('^[=]\+\n^\p.*:\s*$', 1)<CR>
+	nnoremap <buffer> <silent> }} :call <SID>Search('{[^}]\+}', 0, 1)<CR>
+	nnoremap <buffer> <silent> {{ :call <SID>Search('{[^}]\+}', 1, 1)<CR>
 	1
     endif
 
     return results
-endfuntion
+endfunc
 
 func s:ParseWin(word)
     let results = ""
@@ -447,17 +459,37 @@ func s:ParseWin(word)
 	let result = substitute(getline(1), '^\(\d*\).*', '\1', '')
 	sil exec "norm 1Gdd"
     elseif getline(1) =~ '^No .*, perhaps you mean:$'
-	let result = "alternate"
+	let result = "Alternate"
 	sil exec "norm 1Gdd"
     endif
 
-    sil exec "norm 0G"
+    call cursor(1, 1)
 
     if getline(1) =~ '^\w\+:  .*$'
 "	sil exec ':%s/  / /g'
     else
+	let total = 0
+	let save_pos = getpos(".")
+
 	while 1
-	    let i = search('^From .* \(.*\) \[.*\]:$', "w")
+	    " The 'c' flag is needed to match the first line.
+	    let i = search('^From .* \(.*\)[ ]*\[.*\]:$', "Wc")
+
+	    if i == 0
+		break
+	    else
+		let total = total + 1
+		" Without the following two lines the loop would never end
+		" ('c' flag from above).
+		let pos = [0, i + 1, 0, 0]
+		call setpos('.', pos)
+	    endif
+	endwhile
+
+	call setpos('.', save_pos)
+
+	while 1
+	    let i = search('^From .* \(.*\)[ ]*\[.*\]:$', "Wc")
 
 	    if i == 0
 		break
@@ -482,7 +514,7 @@ func s:ParseWin(word)
 	    sil exec 'norm ' . n . '"zp'
 
 	    let result = result + 1
-	    let @z = '['.result.']='
+	    let @z = '['.result.' of '.total.']='
 
 	    call cursor(i + 2, n - strlen(@z))
 	    sil exec 'norm '.strlen(@z).'x"zp'
@@ -543,8 +575,9 @@ endfunc
 " spaces
 func s:Echo(str)
     let line = substitute(a:str, '[[:space:]]*$', '', '')
+    let n = getwinvar(".", "&columns")
 
-    while strlen(line) < 78
+    while strlen(line) < n - 1
 	let line = line.' '
     endwhile
 

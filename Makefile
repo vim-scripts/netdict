@@ -1,7 +1,3 @@
-# $Log: Makefile,v $
-# Revision 1.1  2003/08/23 19:29:42  bjk
-# Initial commit.
-#
 PREFIX		= $(HOME)/.vim
 
 install:
@@ -9,3 +5,9 @@ install:
 	cp syntax/netdict.vim $(PREFIX)/syntax
 	cp plugin/netdict.vim $(PREFIX)/plugin
 	cp doc/netdict.txt $(PREFIX)/doc
+
+dist:
+	test -d .git && git log > ChangeLog
+	mv .git ..
+	tar zcf ../netdict.tgz -C .. netdict
+	mv ../.git .

@@ -1,0 +1,102 @@
+commit a640b7c416d97b29ac6a867a99358fb5f3ba7089
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 12:51:29 2006 -0400
+
+    escape() "$" in the term and database name.
+
+commit a2a24419386e4228254e543ddba83b8473cd9e5f
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 12:39:42 2006 -0400
+
+    Remember the last term entered in the GUI input dialog.
+
+commit fa7971fdd4f865e28739a7e601b0ff2edeea7558
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 12:11:03 2006 -0400
+
+    Added "dist" target.
+
+commit 9c279f7f5dc3db6fcf72907353ee6f636c4e9044
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 12:05:30 2006 -0400
+
+    Fix master~2 and the database name.
+
+commit 4bf5c9c3bce008e23b5ac2f19a65b98fa29f0a7b
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 11:54:34 2006 -0400
+
+    Fix for * in database name (again).
+
+commit df6a2820bb9a193dc203494e16b9af33178f859d
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Aug 5 11:41:47 2006 -0400
+
+    Fix for the status line when a term contains quotes.
+    
+    Fix looking up a term with quotes and a specified database g:netdict_database.
+
+commit d006b91bd87ea8187aa95a20d5062e432e4feaff
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 11:57:28 2006 -0400
+
+    Another database expression fix but for the match window.
+
+commit 079486e5b92b801877b2aa7ae7431ab589cd2bc9
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 11:37:44 2006 -0400
+
+    Fix for database which contain non alphanumeric characters.
+
+commit c289ae92e2668370c7c40b215a9d5016b0123395
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 10:46:16 2006 -0400
+
+    Removed NetdictAllCursor* stuff.
+    
+    Documentation updates.
+    
+    Renamed mappings. They are now:
+    
+    	<Leader>ll   lookup
+    	<Leader>lm   match
+    	<Leader>lcl  lookup cursor word
+    	<Leader>lcm  match cursor word
+    
+    Silence plugin menu selections.
+
+commit 155dbf662bbbdaeef1d908832f03a32579297ffe
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 10:20:00 2006 -0400
+
+    Renamed ChangeLog to ChangeLog.old. The new archive will contain changes from git log.
+
+commit 776b912bbf9e6af204da2aa033267a2e54314997
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 10:17:15 2006 -0400
+
+    Make sure +dialog_gui is set when necessary.
+    
+    Fix syntax and pattern matching for non-ascii databases.
+    
+    Add the total number of definitions to the database line.
+
+commit 394f0826fb64b67f8b87e3fb8c7e9d460462881e
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sun Jul 30 08:49:14 2006 -0400
+
+    Check for g:netdict_dictprg before trying to execute it.
+
+commit cd8bf51387df60b0dc5455a6ddc1646e24a9157f
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Jul 29 19:58:07 2006 -0400
+
+    Update the VIM homepage URI.
+    
+    Removed the changes from the syntax and plugin files and put them in ChangeLog.
+
+commit aac8bc38a420de70bf2c8b859b7a9b7cd5d6eb52
+Author: Ben Kibbey <bjk@luxsci.net>
+Date:   Sat Jul 29 19:42:14 2006 -0400
+
+    Initial import from vim.git. Forked to it's own repository.

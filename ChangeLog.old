@@ -1,0 +1,164 @@
+2006-07-29
+----------
+Be quiet about calling functions.
+
+Escape more special characters.
+
+Don't assume the term contains only <word> characters.
+
+GUI colors added
+
+
+2006-07-23
+----------
+Pass '--pager -' to dict.
+
+Remove bash dependency. Use a generated temp file instead.
+
+Escape terms so the shell can interpret them correctly.
+
+Append the strategy to the history.
+
+Dont display N matches if there aren't any.
+
+Fix typo in dumpdef().
+
+Fix for blanking the input line when terminal columns are greater than 78.
+
+Skip leading space from the term.
+
+Added GUI input dialog.
+
+
+2004-07-03
+----------
+Pass -P to dict (don't execute a pager).
+
+
+2003-08-23
+----------
+Fix the database expression to include '-' in the name.
+
+
+2003-08-23
+----------
+see the plugin and syntax files for their changes.
+
+Fix the database expression to include '-' in the name.
+
+
+2002-05-11
+----------
+[count] bugfix
+
+
+2002-05-10
+----------
+NetdictCmd() replaces MatchCmd() and LookupCmd()
+
+avoid 'hit enter' more often
+
+removed visual <Plug>Netdict*Cursor* mappings (useless right now)
+
+syntax highlighting updates
+
+changed '}}' and '{{' when displaying matches to ']]' and '[[' (easier)
+when showing matches move the cursor to the first match
+
+
+2002-05-08
+----------
+}} and {{ jump to the next or previous match when showing matches
+
+menu items are under Plugins.Netdict
+
+[count] works with definition/hyperlink/match jumps (buggy)
+
+<C-\> is now <Esc>1 and <Tab> is now <Esc>3
+
+added mapping <Esc>2 (<Plug>NetdictAllCursorLookup) to show all
+definitions for a hyperlink or match
+
+added mapping <Esc>4 (<Plug>NetdictAllCursorMatch) to show matches from
+all databases when selecting a match
+
+added commands and jumps to input history (see netdict_extra_history)
+
+more syntax highlighting
+
+<Leader>ld and <Leader>ls are now <Plug>NetdictShowDB and
+
+<Plug>NetdictShowStrat plugins
+
+
+2002-05-06
+----------
+made <C-/> and <Tab> as <Plug>NetdictCursorLookup and 
+<Plug>NetdictCursorMatch plugins
+
+added mappings }} and {{ to goto the next and previous hyperlink in the
+definition window
+
+use winline() in Search()
+
+use getwinvar() rather than getbufvar() (fixes textwidth bug)
+
+multiword terms work when enclosed in " or {} (still cant select more
+than one word in visual mode though)
+
+added configuration option netdict_expand
+
+more syntax highlighting
+
+2002-05-02 (#2)
+needs the bash shell installed. will change the `shell' variable
+automatically before calling system() then restore the old setting
+afterwards. this is needed for file descriptor stuff.
+   
+2002-05-02
+----------
+plugin names are NetdictLookup and NetdictMatch
+
+added commands :Lookup and :Match
+
+<C-/> now works in visual mode (still only one word though)
+
+added map <Tab> to lookup matches for the word under the cursor
+
+v:shell_error now holds the return value of dict and not tee
+
+tell what invalid database or strategy
+
+added Match Term to the plugin menu
+
+when jumping between matches using [[ or ]] try to position the match at
+the top of the window
+
+
+2002-04-30
+----------
+change netdict_dictargs to netdict_xargs
+
+can search different databases using different strategies
+
+changed mapping <Leader>l to <Leader>ll
+
+added mappings <Leader>lm, <Leader>ld and <Leader>ls
+
+default database is defined by netdict_database
+
+default search strategy is defined by netdict_strategy
+
+LookupWord() renamed to LookupTerm()
+
+miscellaneous cleanups
+
+
+2002-04-26
+----------
+tags work now (heavily ripped from man.vim)
+
+output looks a little better
+
+local mappings ]] and [[ to goto the next and previous definitions
+in the current window
